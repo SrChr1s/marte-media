@@ -1,0 +1,39 @@
+# Linux .deb/.rpm. Run from the repo root via scripts/package.sh.
+# The real binary and its yt-dlp/ffmpeg live together in /usr/lib/marte-desc (the app looks for
+# them next to its own executable); /usr/bin/marte-desc is a symlink.
+name: marte-desc
+arch: amd64
+platform: linux
+version: ${VERSION}
+section: video
+maintainer: Chris <c.salazar.vzla@gmail.com>
+description: Descarga y convierte video y audio de YouTube (yt-dlp + ffmpeg incluidos).
+contents:
+  - src: build/bin/marte-desc
+    dst: /usr/lib/marte-desc/marte-desc
+    file_info: { mode: 0755 }
+  - src: build/deps/linux-amd64/yt-dlp
+    dst: /usr/lib/marte-desc/yt-dlp
+    file_info: { mode: 0755 }
+  - src: build/deps/linux-amd64/ffmpeg
+    dst: /usr/lib/marte-desc/ffmpeg
+    file_info: { mode: 0755 }
+  - src: build/deps/linux-amd64/deno
+    dst: /usr/lib/marte-desc/deno
+    file_info: { mode: 0755 }
+  - src: /usr/lib/marte-desc/marte-desc
+    dst: /usr/bin/marte-desc
+    type: symlink
+  - src: packaging/marte-desc.desktop
+    dst: /usr/share/applications/marte-desc.desktop
+  - src: build/appicon.png
+    dst: /usr/share/icons/hicolor/1024x1024/apps/marte-desc.png
+  - src: THIRD_PARTY.md
+    dst: /usr/share/doc/marte-desc/THIRD_PARTY.md
+  - src: build/deps/linux-amd64/FFMPEG-LICENSE.txt
+    dst: /usr/share/doc/marte-desc/FFMPEG-LICENSE.txt
+overrides:
+  deb:
+    depends: [libgtk-3-0, libwebkit2gtk-4.1-0]
+  rpm:
+    depends: [gtk3, webkit2gtk4.1]

@@ -1,0 +1,42 @@
+/* Tokens from DESIGN.md ("YouTube Modern" + the Marte extension). Same palette: red, near-black, greys. */
+:root {
+  --primary: #ff0000;
+  --primary-hover: #e60000;
+  --primary-soft: rgba(255, 0, 0, 0.14);
+  --primary-glow: rgba(255, 0, 0, 0.45);
+  --background: #0f0f0f;
+  --surface-low: #171717;
+  --surface: #272727;
+  --surface-hover: #3f3f3f;
+  --border: #2c2c2c;
+  --border-strong: #3f3f3f;
+  --text: #ffffff;
+  --text-muted: #aaaaaa;
+  --ok: #2ba640;
+  --danger: #ff6b6b;
+
+  --radius-card: 12px;
+  --radius-button: 18px;
+  --radius-panel: 20px;
+  --rail-width: 76px;
+
+  --font: Roboto, Arial, sans-serif;
+  --font-display: 'Space Grotesk', Roboto, Arial, sans-serif;
+  --base-size: 14px;
+
+  /* shadows carry the red of the planet, not plain black */
+  --shadow-card: 0 14px 34px -14px rgba(90, 0, 0, 0.65);
+  --shadow-menu: 0 18px 44px -10px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.04);
+
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --dur: 180ms;
+
+  /* z-index scale */
+  --z-stage: 0;
+  --z-content: 1;
+  --z-player: 5;
+  --z-toast: 50;
+  --z-full: 90;
+  --z-menu: 100;
+  --z-grain: 200;
+}

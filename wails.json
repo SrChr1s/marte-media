@@ -1,0 +1,21 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "marte-desc",
+  "outputfilename": "marte-desc",
+  "frontend:install": "npm install",
+  "frontend:build": "npm run build",
+  "frontend:dev:watcher": "npm run dev",
+  "frontend:dev:serverUrl": "auto",
+  "author": {
+    "name": "Chris",
+    "email": "c.salazar.vzla@gmail.com"
+  },
+  "build:tags": "webkit2_41",
+  "info": {
+    "companyName": "Satrn",
+    "productName": "Marte Desc",
+    "productVersion": "0.1.0",
+    "copyright": "Copyright © 2026 Chris",
+    "comments": "Descargador y conversor de media de YouTube"
+  }
+}

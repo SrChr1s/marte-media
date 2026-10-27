@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Marte Desc
+Comment=Descarga y convierte media de YouTube
+Exec=marte-desc
+Icon=marte-desc
+Terminal=false
+Categories=AudioVideo;Network;

@@ -1,0 +1,63 @@
+(async()=>{
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const log=m=>window.runtime.LogError('[pl] '+m);
+const shot=async n=>{log('SHOT '+n); await sleep(2500)};
+const trace=async(label,ms,every)=>{const M=window.__marte;const out=[];const t0=performance.now();while(performance.now()-t0<ms){const f=M.flags();out.push(Math.round(performance.now()-t0)+'ms a='+M.audio.currentTime.toFixed(2)+' v='+M.video.currentTime.toFixed(2)+' want='+(f.wantPlay?1:0)+' pFV='+(f.pausedForVideo?1:0)+' aP='+(f.aPaused?1:0)+' aR='+f.aReady+' vP='+(f.vPaused?1:0)+' vR='+f.vReady+' vS='+(f.vSeeking?1:0)+' '+f.status);await sleep(every)}log(label+' :: '+out.join(' | '))};
+const rail=l=>[...document.querySelectorAll('.rail .item')].find(b=>b.textContent.includes(l)).click();
+const search=q=>{const i=document.querySelector('.bar input');i.value=q;i.dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('.bar').requestSubmit()};
+try{
+localStorage.removeItem('marte-desc.player');localStorage.setItem('marte-desc.debug','1');
+await sleep(1500);
+rail('Reproducir'); await sleep(700);
+await shot('01_idle');
+search('marte'); await sleep(2500);
+log('video results='+document.querySelectorAll('.vcard').length);
+await shot('02_results_video');
+document.querySelector('.vcard .open').click(); await sleep(4000);
+const M=window.__marte;
+const v0=document.createElement('video'),a0=document.createElement('audio');
+log('canPlayType vp9='+JSON.stringify(v0.canPlayType('video/webm; codecs="vp9"'))+' avc1='+JSON.stringify(v0.canPlayType('video/mp4; codecs="avc1.640028"'))+' av01='+JSON.stringify(v0.canPlayType('video/mp4; codecs="av01.0.05M.08"'))+' opus='+JSON.stringify(a0.canPlayType('audio/webm; codecs="opus"'))+' aac='+JSON.stringify(a0.canPlayType('audio/mp4; codecs="mp4a.40.2"')));
+const st=M.player.stream;
+log('after click: status='+M.player.status+' hasVideo='+M.player.hasVideo+' videoShown='+M.player.videoShown+' picked='+(st&&st.video&&st.video.mime)+' h='+(st&&st.video&&st.video.height)+' audio='+(st&&st.audio&&st.audio.mime)+' heights='+JSON.stringify(M.player.heights));
+await shot('03_watching');
+const ds=[];const q0=M.video.getVideoPlaybackQuality();
+for(let i=0;i<24;i++){ds.push(M.audio.currentTime-M.video.currentTime);await sleep(500)}
+const ab=ds.map(Math.abs),q1=M.video.getVideoPlaybackQuality();
+log('drift n='+ds.length+' maxAbs='+Math.max(...ab).toFixed(3)+' meanAbs='+(ab.reduce((a,b)=>a+b,0)/ab.length).toFixed(3)+' audioT='+M.audio.currentTime.toFixed(1)+' videoT='+M.video.currentTime.toFixed(1)+' vsize='+M.video.videoWidth+'x'+M.video.videoHeight+' droppedFrames='+(q1.droppedVideoFrames-q0.droppedVideoFrames)+'/'+(q1.totalVideoFrames-q0.totalVideoFrames)+' rate='+M.video.playbackRate.toFixed(2));
+M.seek(40); await sleep(2500);
+log('seek40: a='+M.audio.currentTime.toFixed(2)+' v='+M.video.currentTime.toFixed(2)+' status='+M.player.status);
+M.toggle(); await sleep(800); const pa=M.audio.currentTime; await sleep(800);
+log('paused: audio moved='+(M.audio.currentTime-pa).toFixed(3)+' video.paused='+M.video.paused+' status='+M.player.status);
+M.toggle(); await trace('resume trace',2400,300);
+log('resumed: a='+M.audio.currentTime.toFixed(2)+' v='+M.video.currentTime.toFixed(2)+' status='+M.player.status);
+const t0=M.audio.currentTime; M.setQuality(360); await trace('quality trace',3200,400);
+log('quality360: vsize='+M.video.videoWidth+'x'+M.video.videoHeight+' audio advanced='+(M.audio.currentTime-t0).toFixed(2)+' drift='+(M.audio.currentTime-M.video.currentTime).toFixed(3));
+document.querySelector('.back').click(); await sleep(800);
+await shot('04_mini_over_results');
+document.querySelector('[data-queue-btn]').click(); await sleep(600);
+await shot('05_queue_popover');
+document.querySelector('[data-queue-btn]').click(); await sleep(300);
+[...document.querySelectorAll('.choice button')].find(b=>b.textContent.trim()==='Música').click(); await sleep(2500);
+log('music rows='+document.querySelectorAll('.song').length+' (albums must be dropped)');
+await shot('06_results_music');
+document.querySelector('.song').click(); await sleep(3500);
+const a1=M.audio.currentTime; await sleep(1500);
+const cur=M.player.queue[M.player.index];
+log('music: status='+M.player.status+' mode='+M.player.mode+' hasVideo='+M.player.hasVideo+' audioMoved='+(M.audio.currentTime-a1).toFixed(2)+' title='+cur.title+' channel='+cur.channel);
+rail('Cola'); await sleep(1500);
+const a2=M.audio.currentTime; await sleep(1500);
+log('other view: audioMoved='+(M.audio.currentTime-a2).toFixed(2)+' status='+M.player.status+' mini='+!!document.querySelector('.mini'));
+await shot('07_mini_other_view');
+document.querySelector('[aria-label="Siguiente"]').click(); await sleep(3000);
+log('next: index='+M.player.index+' title='+M.player.queue[M.player.index].title+' status='+M.player.status);
+rail('Reproducir'); await sleep(600); search('https://www.youtube.com/playlist?list=PLdemo'); await sleep(3500);
+log('playlist link: queue='+M.player.queue.length+' index='+M.player.index+' status='+M.player.status);
+document.querySelector('.mini .cover').click(); await sleep(1500);
+await shot('08_watching_music_cover');
+[...document.querySelectorAll('.actions button')].find(b=>b.textContent.includes('Descargar audio')).click(); await sleep(1200);
+log('download toast='+(document.querySelector('.toast .text')?document.querySelector('.toast .text').textContent:'none'));
+rail('Cola'); await sleep(1200);
+log('download queued: jobs in Cola='+document.querySelectorAll('main ul li').length);
+}catch(e){log('SCRIPT ERROR '+e+' '+(e&&e.stack||''))}
+log('done');
+})()
