@@ -18,7 +18,7 @@ func main() {
 
 	// Create application with options
 	opts := &options.App{
-		Title:     "Marte Desc",
+		Title:     "Marte Media",
 		Width:     1100,
 		Height:    760,
 		MinWidth:  820,
@@ -28,8 +28,8 @@ func main() {
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
-		BackgroundColour: &options.RGBA{R: 15, G: 15, B: 15, A: 1},  // #0f0f0f
-		Linux:            &linux.Options{ProgramName: "marte-desc"}, // Wayland app_id, matches marte-desc.desktop
+		BackgroundColour: &options.RGBA{R: 15, G: 15, B: 15, A: 1},   // #0f0f0f
+		Linux:            &linux.Options{ProgramName: "marte-media"}, // Wayland app_id, matches marte-media.desktop
 		OnStartup:        app.startup,
 		OnShutdown:       app.shutdown,
 		Bind: []interface{}{

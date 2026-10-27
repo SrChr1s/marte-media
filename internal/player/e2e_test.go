@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"marte-desc/internal/ytdlp"
+	"marte-media/internal/ytdlp"
 )
 
 // Run with: go test -tags e2e ./internal/player -run E2E -v

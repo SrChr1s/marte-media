@@ -1,4 +1,4 @@
-module marte-desc
+module marte-media
 
 go 1.25.0
 

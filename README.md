@@ -1,4 +1,4 @@
-# Marte Desc
+# Marte Media
 
 Descargador, conversor y reproductor de media de YouTube para escritorio (Linux y Windows).
 Go + [Wails](https://wails.io) v2 + Svelte 5. Lleva `yt-dlp`, `ffmpeg` y `deno` incluidos.

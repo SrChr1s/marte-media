@@ -16,12 +16,13 @@ interface Saved {
   height: number
   autoplay: boolean
 }
-const KEY = 'marte-desc.player'
+const KEY = 'marte-media.player'
 const defaults: Saved = { volume: 0.8, muted: false, repeat: 'off', shuffle: false, height: 720, autoplay: true }
 
 function loadSaved(): Saved {
   try {
-    return { ...defaults, ...JSON.parse(localStorage.getItem(KEY) ?? '{}') }
+    // 'marte-desc.player' is the key from before the app was renamed
+    return { ...defaults, ...JSON.parse(localStorage.getItem(KEY) ?? localStorage.getItem('marte-desc.player') ?? '{}') }
   } catch {
     return { ...defaults }
   }
@@ -133,10 +134,10 @@ function ensure() {
   video.addEventListener('timeupdate', () => (slaveAdvancedAt = performance.now()))
   applyVolume()
   setupMediaSession()
-  // Diagnostics: with localStorage "marte-desc.debug" = "1" the elements and controls are reachable from the
+  // Diagnostics: with localStorage "marte-media.debug" = "1" the elements and controls are reachable from the
   // console (used to measure audio/video drift). Off by default.
   try {
-    debugOn = localStorage.getItem('marte-desc.debug') === '1'
+    debugOn = localStorage.getItem('marte-media.debug') === '1'
     if (debugOn) Object.assign(window, { __marte: {
           trail,
           audio, video, player, seek, toggle, next, setQuality, setMode,

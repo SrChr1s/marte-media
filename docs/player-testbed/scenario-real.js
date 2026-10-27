@@ -6,7 +6,7 @@ const rail=l=>[...document.querySelectorAll('.rail .item')].find(b=>b.textConten
 const search=q=>{const i=document.querySelector('.bar input');i.value=q;i.dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('.bar').requestSubmit()};
 const shot=async n=>{log('SHOT '+n); await sleep(2500)};
 try{
-localStorage.removeItem('marte-desc.player');localStorage.setItem('marte-desc.debug','1');
+localStorage.removeItem('marte-media.player');localStorage.setItem('marte-media.debug','1');
 await sleep(1500);
 rail('Reproducir'); await sleep(500);
 const t0=Date.now();

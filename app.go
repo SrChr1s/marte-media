@@ -10,9 +10,9 @@ import (
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
-	"marte-desc/internal/queue"
-	"marte-desc/internal/store"
-	"marte-desc/internal/ytdlp"
+	"marte-media/internal/queue"
+	"marte-media/internal/store"
+	"marte-media/internal/ytdlp"
 )
 
 // App is bound to the frontend; every exported method is callable from Svelte.

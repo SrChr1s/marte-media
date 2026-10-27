@@ -1,7 +1,7 @@
 package queue
 
 import (
-	"marte-desc/internal/ytdlp"
+	"marte-media/internal/ytdlp"
 	"os"
 	"path/filepath"
 	"sync"

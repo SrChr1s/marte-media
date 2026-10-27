@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 # run.sh : serve test media, run the app with the fake yt-dlp and the scenario, screenshot at each SHOT marker
-S=/tmp/claude-1000/-home-srchr1s-Satrn-marte-desc/8547ec3e-55bc-4b17-9b05-5f1a4d189503/scratchpad
+# S: working folder holding media/, pdemo|preal/ (scenario.js, cfg, bin) and realapp/ (see README.md here)
+S=${S:-/tmp/marte-testbed}
+REPO=${REPO:-$(cd "$(dirname "$0")/../.." && pwd)}
 P=$S/pdemo; LOG=$P/run.log; : > $LOG; rm -f $P/shots/*.png
 python3 $S/media/rangeserver.py 18765 & srv=$!
 before=$(niri msg windows | awk '/Window ID/{gsub(":","",$3); print $3}' | sort -n | tr "\n" " ")
 orig=$(niri msg focused-window | awk '/Window ID/{gsub(":","",$3); print $3}')
-XDG_CONFIG_HOME=$P/cfg PATH=$P/bin:$PATH MARTE_JS1="$(cat $P/scenario.js)" /home/srchr1s/Satrn/marte-desc/build/bin/marte-desc >$LOG 2>&1 &
+XDG_CONFIG_HOME=$P/cfg PATH=$P/bin:$PATH MARTE_JS1="$(cat $P/scenario.js)" $REPO/build/bin/marte-media >$LOG 2>&1 &
 app=$!
 sleep 3
 new=""; for w in $(niri msg windows | awk '/Window ID/{gsub(":","",$3); print $3}'); do case " $before " in *" $w "*) ;; *) new="$new $w";; esac; done

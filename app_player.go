@@ -8,8 +8,8 @@ import (
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
-	"marte-desc/internal/player"
-	"marte-desc/internal/ytdlp"
+	"marte-media/internal/player"
+	"marte-media/internal/ytdlp"
 )
 
 // playState is everything the player view needs on the Go side.

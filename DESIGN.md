@@ -27,7 +27,7 @@ rounded:
 - **Navigation**: Minimalist sidebar icons (24px) that collapse to a rail.
 
 # Marte extension
-marte-desc is named after the planet. The YouTube foundation above stays; Mars gives it a personality.
+marte-media is named after the planet. The YouTube foundation above stays; Mars gives it a personality.
 The palette does not change: red, near-black and greys. Red is the planet.
 
 - **The planet**: a drawn Mars (red body, polar cap, canyon scar, craters, night side, tilted orbit ring) is the

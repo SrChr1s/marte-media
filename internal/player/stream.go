@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"marte-desc/internal/ytdlp"
+	"marte-media/internal/ytdlp"
 )
 
 // SourceInfo is one playable stream as the page sees it: a local URL and what it contains.

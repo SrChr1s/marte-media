@@ -6,7 +6,7 @@ const trace=async(label,ms,every)=>{const M=window.__marte;const out=[];const t0
 const rail=l=>[...document.querySelectorAll('.rail .item')].find(b=>b.textContent.includes(l)).click();
 const search=q=>{const i=document.querySelector('.bar input');i.value=q;i.dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('.bar').requestSubmit()};
 try{
-localStorage.removeItem('marte-desc.player');localStorage.setItem('marte-desc.debug','1');
+localStorage.removeItem('marte-media.player');localStorage.setItem('marte-media.debug','1');
 await sleep(1500);
 rail('Reproducir'); await sleep(700);
 await shot('01_idle');

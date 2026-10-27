@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"marte-desc/internal/ytdlp"
+	"marte-media/internal/ytdlp"
 )
 
 func fixture(t *testing.T) ytdlp.Media {

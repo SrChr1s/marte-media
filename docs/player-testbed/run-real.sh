@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-S=/tmp/claude-1000/-home-srchr1s-Satrn-marte-desc/8547ec3e-55bc-4b17-9b05-5f1a4d189503/scratchpad
+# S: working folder holding media/, pdemo|preal/ (scenario.js, cfg, bin) and realapp/ (see README.md here)
+S=${S:-/tmp/marte-testbed}
+REPO=${REPO:-$(cd "$(dirname "$0")/../.." && pwd)}
 P=$S/preal; LOG=$P/run.log; : > $LOG; rm -f $P/shots/*.png
 before=$(niri msg windows | awk '/Window ID/{gsub(":","",$3); print $3}' | sort -n | tr "\n" " ")
 orig=$(niri msg focused-window | awk '/Window ID/{gsub(":","",$3); print $3}')
-XDG_CONFIG_HOME=$P/cfg PATH=/usr/bin:/bin MARTE_JS1="$(cat $P/scenario.js)" $S/realapp/marte-desc >$LOG 2>&1 &
+XDG_CONFIG_HOME=$P/cfg PATH=/usr/bin:/bin MARTE_JS1="$(cat $P/scenario.js)" $S/realapp/marte-media >$LOG 2>&1 &
 app=$!; sleep 3
 new=""; for w in $(niri msg windows | awk '/Window ID/{gsub(":","",$3); print $3}'); do case " $before " in *" $w "*) ;; *) new="$new $w";; esac; done
 set -- $new; win=$1; [ -n "$win" ] && niri msg action focus-window --id "$win"

@@ -4,7 +4,7 @@
   const id = Math.random().toString(36).slice(2, 8)
 </script>
 
-<svg width={size} height={size} viewBox="0 0 48 48" role="img" aria-label="marte-desc">
+<svg width={size} height={size} viewBox="0 0 48 48" role="img" aria-label="marte-media">
   <defs>
     <radialGradient id="b-{id}" cx="34%" cy="30%" r="80%">
       <stop offset="0" stop-color="#ff3a2c" />

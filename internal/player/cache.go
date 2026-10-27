@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"marte-desc/internal/ytdlp"
+	"marte-media/internal/ytdlp"
 )
 
 // MediaCache remembers resolved videos so that changing quality, or resolving the next track ahead of time,

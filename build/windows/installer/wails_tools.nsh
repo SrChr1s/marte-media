@@ -5,13 +5,13 @@
 !include "FileFunc.nsh"
 
 !ifndef INFO_PROJECTNAME
-    !define INFO_PROJECTNAME "marte-desc"
+    !define INFO_PROJECTNAME "marte-media"
 !endif
 !ifndef INFO_COMPANYNAME
     !define INFO_COMPANYNAME "Satrn"
 !endif
 !ifndef INFO_PRODUCTNAME
-    !define INFO_PRODUCTNAME "Marte Desc"
+    !define INFO_PRODUCTNAME "Marte Media"
 !endif
 !ifndef INFO_PRODUCTVERSION
     !define INFO_PRODUCTVERSION "0.1.0"

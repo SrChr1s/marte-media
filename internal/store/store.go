@@ -44,13 +44,18 @@ func New(dir string) (*Store, error) {
 	return &Store{dir: dir}, nil
 }
 
-// DefaultDir is ~/.config/marte-desc.
+// DefaultDir is ~/.config/marte-media.
 func DefaultDir() (string, error) {
 	base, err := os.UserConfigDir()
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(base, "marte-desc"), nil
+	dir := filepath.Join(base, "marte-media")
+	// The app used to be called marte-desc: carry its settings and history over once.
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		_ = os.Rename(filepath.Join(base, "marte-desc"), dir)
+	}
+	return dir, nil
 }
 
 func (s *Store) Dir() string { return s.dir }

@@ -147,7 +147,7 @@
   {#if idle}
     <div class="planet" aria-hidden="true"><Planet size={430} float /></div>
     <header class="hero">
-      <p class="eyebrow">marte-desc</p>
+      <p class="eyebrow">marte-media</p>
       <h1>Descarga video y audio de YouTube</h1>
       <p class="lead">Pega el enlace de un video o de una playlist. Elige calidad, formato y carpeta; el resto lo hace la cola.</p>
     </header>

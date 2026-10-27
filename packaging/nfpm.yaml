@@ -1,7 +1,7 @@
 # Linux .deb/.rpm. Run from the repo root via scripts/package.sh.
-# The real binary and its yt-dlp/ffmpeg live together in /usr/lib/marte-desc (the app looks for
-# them next to its own executable); /usr/bin/marte-desc is a symlink.
-name: marte-desc
+# The real binary and its yt-dlp/ffmpeg live together in /usr/lib/marte-media (the app looks for
+# them next to its own executable); /usr/bin/marte-media is a symlink.
+name: marte-media
 arch: amd64
 platform: linux
 version: ${VERSION}
@@ -9,29 +9,29 @@ section: video
 maintainer: Chris <c.salazar.vzla@gmail.com>
 description: Descarga y convierte video y audio de YouTube (yt-dlp + ffmpeg incluidos).
 contents:
-  - src: build/bin/marte-desc
-    dst: /usr/lib/marte-desc/marte-desc
+  - src: build/bin/marte-media
+    dst: /usr/lib/marte-media/marte-media
     file_info: { mode: 0755 }
   - src: build/deps/linux-amd64/yt-dlp
-    dst: /usr/lib/marte-desc/yt-dlp
+    dst: /usr/lib/marte-media/yt-dlp
     file_info: { mode: 0755 }
   - src: build/deps/linux-amd64/ffmpeg
-    dst: /usr/lib/marte-desc/ffmpeg
+    dst: /usr/lib/marte-media/ffmpeg
     file_info: { mode: 0755 }
   - src: build/deps/linux-amd64/deno
-    dst: /usr/lib/marte-desc/deno
+    dst: /usr/lib/marte-media/deno
     file_info: { mode: 0755 }
-  - src: /usr/lib/marte-desc/marte-desc
-    dst: /usr/bin/marte-desc
+  - src: /usr/lib/marte-media/marte-media
+    dst: /usr/bin/marte-media
     type: symlink
-  - src: packaging/marte-desc.desktop
-    dst: /usr/share/applications/marte-desc.desktop
+  - src: packaging/marte-media.desktop
+    dst: /usr/share/applications/marte-media.desktop
   - src: build/appicon.png
-    dst: /usr/share/icons/hicolor/1024x1024/apps/marte-desc.png
+    dst: /usr/share/icons/hicolor/1024x1024/apps/marte-media.png
   - src: THIRD_PARTY.md
-    dst: /usr/share/doc/marte-desc/THIRD_PARTY.md
+    dst: /usr/share/doc/marte-media/THIRD_PARTY.md
   - src: build/deps/linux-amd64/FFMPEG-LICENSE.txt
-    dst: /usr/share/doc/marte-desc/FFMPEG-LICENSE.txt
+    dst: /usr/share/doc/marte-media/FFMPEG-LICENSE.txt
 overrides:
   deb:
     depends: [libgtk-3-0, libwebkit2gtk-4.1-0]

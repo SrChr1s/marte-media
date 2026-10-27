@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"marte-desc/internal/ytdlp"
+	"marte-media/internal/ytdlp"
 )
 
 const (

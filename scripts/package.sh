@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Builds installers into build/bin. Needs build/deps/ (run scripts/fetch-deps.sh first).
-#   scripts/package.sh linux     -> marte-desc_<ver>_amd64.deb + marte-desc-<ver>.x86_64.rpm  (needs nfpm)
-#   scripts/package.sh windows   -> marte-desc-amd64-installer.exe                            (needs makensis)
+#   scripts/package.sh linux     -> marte-media_<ver>_amd64.deb + marte-media-<ver>.x86_64.rpm  (needs nfpm)
+#   scripts/package.sh windows   -> marte-media-amd64-installer.exe                            (needs makensis)
 set -euo pipefail
 
 cd "$(dirname "$0")/.."

@@ -50,7 +50,7 @@ retomar. El plan aprobado está en `~/.claude/plans/vamos-a-hacer-un-foamy-phoen
 - Componentes: `Slider`, `Transport`, `MiniPlayer`, `Stage` (video, pantalla completa, calidad, velocidad, atajos),
   `QueueList`, `Cover` (miniatura con respaldo); vista `routes/Reproductor.svelte`; sección «Reproductor» en
   Ajustes; `Icon` con iconos nuevos; `Choice` con `onchange`.
-- Gancho de diagnóstico opcional: con `localStorage['marte-desc.debug']='1'` se expone `window.__marte`
+- Gancho de diagnóstico opcional: con `localStorage['marte-media.debug']='1'` se expone `window.__marte`
   (elementos, controles, `flags()`, `trail` con tiempos y errores). Apagado por defecto.
 
 ## Medido en la app real
@@ -90,7 +90,7 @@ pista correcta y avanza. El arranque ≈ resolver (≈3,3 s) + espera de `availa
 - Pantalla completa, atajos de teclado y teclas multimedia sin probar. Windows (WebView2) sin probar.
 - Reproducir recientes / historial en la vista inicial (hoy la vista vacía solo muestra sugerencias).
 - `DESIGN.md` sin la sección del reproductor; README sin actualizar.
-- Paquetes `.deb`/`.rpm`/instalador **sin regenerar** con nada de esto; `build/bin/marte-desc` actual se compiló con
+- Paquetes `.deb`/`.rpm`/instalador **sin regenerar** con nada de esto; `build/bin/marte-media` actual se compiló con
   el gancho de pruebas (inofensivo: solo actúa si existe `MARTE_JS1`), conviene recompilar antes de usarlo.
 - No hay ningún commit en este repo; todo está sin versionar.
 
@@ -124,6 +124,10 @@ Empaquetado: `scripts/fetch-deps.sh`, `packaging/nfpm.yaml`, `build/windows/inst
 
 ## Actualización 2026-10-27 (tarde)
 - Hecho: 403 resuelto, `avc1` fuera en Linux, reintento único por pista, secciones de `DESIGN.md` y `README.md`.
-- Paquetes regenerados con todo el reproductor y deno: `.deb`/`.rpm` (146 MB, `deno` en `/usr/lib/marte-desc/`) e
+- Paquetes regenerados con todo el reproductor y deno: `.deb`/`.rpm` (146 MB, `deno` en `/usr/lib/marte-media/`) e
   instalador de Windows (125 MB). El binario ya no lleva el gancho de pruebas. Sin probar en Windows.
 - Sigue sin probar: clic real, menú contextual de resultados, pantalla completa, atajos, teclas multimedia.
+
+## Renombrado (2026-10-27)
+La app pasó de `marte-desc` a **Marte Media** (`marte-media`), carpeta del repo incluida. Se migra `~/.config/marte-desc`
+y la clave `marte-desc.player` de localStorage. `docs/player-testbed/README.md` explica cómo montar el banco de pruebas.
