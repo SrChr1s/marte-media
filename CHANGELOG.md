@@ -1,5 +1,9 @@
 # Cambios
 
+## 0.1.1 — 2026-10-28
+
+Prueba del flujo de publicación con GitHub Actions; sin cambios en la app.
+
 ## 0.1.0 — 2026-10-28
 
 Primera versión.

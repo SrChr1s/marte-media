@@ -66,6 +66,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           pre=""; [[ "$GITHUB_REF_NAME" == *-* ]] && pre="--prerelease"
-          notes=$(awk -v v="${GITHUB_REF_NAME#v}" '$1=="##" && $2==v {f=1; next} f && $1=="##" {exit} f' CHANGELOG.md)
+          ver=${GITHUB_REF_NAME#v}; ver=${ver%%-*}
+          notes=$(awk -v v="$ver" '$1=="##" && $2==v {f=1; next} f && $1=="##" {exit} f' CHANGELOG.md)
           gh release create "$GITHUB_REF_NAME" $pre --title "Marte Media ${GITHUB_REF_NAME#v}" --notes "$notes" \
             build/bin/*.deb build/bin/*.rpm build/bin/*-installer.exe build/bin/SHA256SUMS
