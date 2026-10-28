@@ -24,3 +24,6 @@ go test -tags e2e ./internal/...           # contra YouTube real (necesita red)
 - El reproductor sirve los flujos por un proxy local (`127.0.0.1`, secreto aleatorio). Las URL de YouTube tardan unos
   segundos en estar disponibles (`available_at`); el proxy espera.
 - Estado y detalles del reproductor: `docs/reproductor.md`. Diseño: `DESIGN.md`. Licencias: `THIRD_PARTY.md`.
+
+## Licencia
+MIT, ver [LICENSE](LICENSE). Los programas de terceros que incluyen los instaladores tienen sus propias licencias: ver [THIRD_PARTY.md](THIRD_PARTY.md).
