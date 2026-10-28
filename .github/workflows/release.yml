@@ -42,11 +42,12 @@ jobs:
 
       - name: Tests
         run: |
-          go vet -tags webkit2_41 ./...
-          go test -race -tags webkit2_41 ./...
           npm --prefix frontend ci
           npm --prefix frontend run check
           npm --prefix frontend test
+          npm --prefix frontend run build
+          go vet -tags webkit2_41 ./...
+          go test -race -tags webkit2_41 ./...
 
       - name: Bundled binaries
         run: scripts/fetch-deps.sh
