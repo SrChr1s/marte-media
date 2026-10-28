@@ -98,9 +98,13 @@ func TestRangeIsChunked(t *testing.T) {
 			t.Errorf("%s: got %d %q (%d bytes), want 206 %q", c.ask, resp.StatusCode, resp.Header.Get("Content-Range"), len(b), c.content)
 		}
 	}
-	// without a Range header the request is not turned into a partial one
-	if resp, b := get(t, local, nil); resp.StatusCode != 200 || len(b) != 1000 {
-		t.Errorf("no Range: want the whole body, got %d with %d bytes", resp.StatusCode, len(b))
+	// without a Range header the page gets one plain 200 with the whole file, fetched upstream piece by piece
+	resp, b := get(t, local, nil)
+	if resp.StatusCode != 200 || len(b) != 1000 || b != body || resp.Header.Get("Content-Length") != "1000" || resp.Header.Get("Content-Range") != "" {
+		t.Errorf("no Range: want the whole body as 200, got %d with %d bytes", resp.StatusCode, len(b))
+	}
+	if seen.Get("Range") != "bytes=900-999" {
+		t.Errorf("no Range: the last upstream request was %q, want the final chunk bytes=900-999", seen.Get("Range"))
 	}
 }
 
@@ -115,8 +119,8 @@ func TestForwardsHeadersButNotEncoding(t *testing.T) {
 	if seen.Get("Accept-Encoding") != "identity" {
 		t.Errorf("must ask for identity encoding, got %q", seen.Get("Accept-Encoding"))
 	}
-	if seen.Get("Range") != "" {
-		t.Errorf("a Range from yt-dlp's headers must not leak in: %q", seen.Get("Range"))
+	if seen.Get("Range") != "bytes=0-1000" && seen.Get("Range") != fmt.Sprintf("bytes=0-%d", DefaultChunk-1) {
+		t.Errorf("a Range from yt-dlp's headers must not leak in, only ours: %q", seen.Get("Range"))
 	}
 }
 

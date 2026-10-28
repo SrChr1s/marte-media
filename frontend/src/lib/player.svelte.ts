@@ -1,4 +1,4 @@
-import { Resolve } from '../../wailsjs/go/main/App'
+import { Prefetch, Resolve } from '../../wailsjs/go/main/App'
 import { correction } from './avsync'
 import { indexAfterRemove, pickNext, pickPrev, type Repeat } from './queue'
 import { toast } from './toasts.svelte'
@@ -105,6 +105,45 @@ function prefs() {
   return { height: player.height, videoCodecs: c.video, audioCodecs: c.audio }
 }
 
+// ---- warming: resolve ahead of the click so playback does not wait for yt-dlp ----
+const warmed = new Map<string, number>() // video id -> when it was asked
+const WARM_TTL = 20 * 60_000 // the backend keeps a resolution for 30 minutes at most
+
+export function prefetch(id: string) {
+  const at = warmed.get(id)
+  if (!id || (at && Date.now() - at < WARM_TTL)) return
+  warmed.set(id, Date.now())
+  Prefetch(id).catch(() => warmed.delete(id))
+}
+
+// Svelte action: warm a result once the pointer rests on it (or it gets keyboard focus) for a moment.
+export function warm(node: HTMLElement, id: string) {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const on = () => {
+    clearTimeout(timer)
+    timer = setTimeout(() => prefetch(id), 180)
+  }
+  const off = () => clearTimeout(timer)
+  node.addEventListener('pointerenter', on)
+  node.addEventListener('focusin', on)
+  node.addEventListener('pointerleave', off)
+  node.addEventListener('focusout', off)
+  return {
+    update(next: string) {
+      id = next
+    },
+    destroy() {
+      off()
+      node.removeEventListener('pointerenter', on)
+      node.removeEventListener('focusin', on)
+      node.removeEventListener('pointerleave', off)
+      node.removeEventListener('focusout', off)
+    },
+  }
+}
+
+let warmedNextFor = -1 // token of the load whose next track was already warmed
+
 // ---- the media elements live here, not in a view, so music keeps playing while you browse ----
 let audio!: HTMLAudioElement
 let video!: HTMLVideoElement
@@ -153,6 +192,12 @@ function wire(el: HTMLMediaElement) {
   el.addEventListener('timeupdate', () => {
     if (!mine()) return
     player.time = el.currentTime
+    // once this track is really playing, get the next one ready (not with shuffle: the next is not known)
+    if (player.time > 2 && warmedNextFor !== token && !player.shuffle) {
+      warmedNextFor = token
+      const nx = player.queue[player.index + 1]
+      if (nx) prefetch(nx.id)
+    }
     // WebKit does not always send "playing" again after "waiting": if time is moving, we are playing
     if (player.status === 'loading' && wantPlay && !el.paused && !pausedForVideo) player.status = 'playing'
   })
@@ -216,13 +261,40 @@ function maybeResume() {
   }
 }
 
+let lastCorrectionSeek = 0
+let correctionSeeks: number[] = []
+
+// The picture keeps falling behind: this machine cannot decode this quality in time. Go one step down.
+function struggling() {
+  correctionSeeks = []
+  const now = player.stream?.video?.height ?? 0
+  const lower = player.heights.filter((h) => h < now && h >= 360)[0] // heights are listed tallest first
+  if (!lower) return
+  toast('info', `Tu equipo no logra mostrar ${now}p con fluidez: bajé a ${lower}p.`)
+  setQuality(lower)
+}
+
 function startSync() {
   stopSync()
   syncTimer = setInterval(() => {
     maybeResume() // runs while the sound is paused too: this is what un-sticks a missed event
     if (!slave || !wantPlay || master.paused || !player.videoShown) return
+    if (slave.seeking) return // a seek is still decoding: asking again only restarts it
     const c = correction(master.currentTime, slave.currentTime, player.rate)
-    if (c.seekTo !== undefined) slave.currentTime = c.seekTo
+    if (c.seekTo !== undefined) {
+      // A picture that cannot keep up (software decoding of a big video) falls behind again right after every
+      // seek. Re-seeking every tick then freezes it for good, so give each seek a couple of seconds to settle
+      // and, if it keeps happening, step the quality down.
+      const now = performance.now()
+      if (now - lastCorrectionSeek < 2000) return
+      lastCorrectionSeek = now
+      correctionSeeks = correctionSeeks.filter((t) => now - t < 20000)
+      correctionSeeks.push(now)
+      slave.currentTime = c.seekTo
+      // only a picture that has data and still lags is decoding too slowly; one without data is just loading
+      if (correctionSeeks.length >= 3 && slave.readyState >= 2) struggling()
+      return
+    }
     if (slave.playbackRate !== c.rate) slave.playbackRate = c.rate
   }, 300)
 }

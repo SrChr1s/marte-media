@@ -19,6 +19,8 @@ type playState struct {
 
 	searchMu     sync.Mutex
 	searchCancel context.CancelFunc
+
+	warm chan struct{} // slots for background resolutions (Prefetch)
 }
 
 func (a *App) startPlayer() {
@@ -28,7 +30,7 @@ func (a *App) startPlayer() {
 		return
 	}
 	srv.Start()
-	a.play = &playState{srv: srv, res: &player.Resolver{
+	a.play = &playState{srv: srv, warm: make(chan struct{}, 2), res: &player.Resolver{
 		Srv:   srv,
 		Cache: player.NewMediaCache(),
 		Fetch: func(ctx context.Context, id string) (ytdlp.Media, error) {
@@ -96,4 +98,24 @@ func (a *App) Resolve(id string, p ResolvePrefs) (player.StreamInfo, error) {
 	ctx, cancel := context.WithTimeout(a.ctx, 90*time.Second)
 	defer cancel()
 	return a.play.res.Resolve(ctx, id, ytdlp.Prefs{Height: p.Height, VideoCodecs: p.VideoCodecs, AudioCodecs: p.AudioCodecs})
+}
+
+// Prefetch resolves a video in the background so that playing it later skips the 3 s yt-dlp run and part of
+// the few seconds YouTube makes a fresh link wait. It is best effort: when two are already running the call
+// is dropped, and any error is left for the real Resolve to report.
+func (a *App) Prefetch(id string) {
+	if a.play == nil || id == "" {
+		return
+	}
+	select {
+	case a.play.warm <- struct{}{}:
+	default:
+		return
+	}
+	go func() {
+		defer func() { <-a.play.warm }()
+		ctx, cancel := context.WithTimeout(a.ctx, 90*time.Second)
+		defer cancel()
+		a.play.res.Warm(ctx, id)
+	}()
 }

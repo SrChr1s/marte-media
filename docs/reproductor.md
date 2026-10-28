@@ -131,3 +131,20 @@ Empaquetado: `scripts/fetch-deps.sh`, `packaging/nfpm.yaml`, `build/windows/inst
 ## Renombrado (2026-10-27)
 La app pasó de `marte-desc` a **Marte Media** (`marte-media`), carpeta del repo incluida. Se migra `~/.config/marte-desc`
 y la clave `marte-desc.player` de localStorage. `docs/player-testbed/README.md` explica cómo montar el banco de pruebas.
+
+## Arranque lento y tirones (2026-10-28)
+- **Causa del arranque lento:** WebKit pide audio y video con un GET **sin `Range`**; el proxy solo troceaba las
+  peticiones con rango y YouTube limita las abiertas a ~25 KB/s (336 KiB en 13,7 s en la traza). Ahora una petición
+  sin rango se atiende con un único 200 de tamaño completo, pidiendo al origen trozos de 10 MiB encadenados.
+- **Precarga:** `App.Prefetch(id)` (máx. 2 en paralelo, cache compartida con `Resolve`) se dispara al pasar el ratón
+  180 ms por un resultado y al llevar 2 s reproduciendo la pista actual (la siguiente de la cola, sin aleatorio).
+  Medido: arranque de 14 s a ≈6,4 s con precarga; lo que queda es la espera de `available_at` (0–5 s, depende del
+  video, no del cliente de YouTube) más ≈3,3 s de `yt-dlp` si no hubo precarga. No hay argumentos de yt-dlp que lo
+  acorten sin romper la extracción (probado `player_skip`, `skip`, `player_client`).
+- **Tirones:** a 2160p el decodificador por software no da abasto; el video se atrasaba >0,3 s y el corrector lo
+  reposicionaba cada 300 ms (20 seeks en 6 s, 0 fotogramas/s). Ahora no se hace seek mientras el anterior no termina,
+  hay 2 s entre correcciones y, tras 3 correcciones en 20 s con datos disponibles, baja un escalón de calidad con
+  aviso (2160 → 1440 → 1080 → 720; queda guardado como calidad por defecto). Medido con «Norangsdalen Scenic
+  Drive 4K»: 720p estable a 30 fps sin huecos, también al volver atrás y reabrir el escenario.
+- Este equipo (WebKitGTK, NVIDIA híbrida) no sostiene 1080p VP9; si hay decodificación por hardware en otro, no
+  debería bajar.

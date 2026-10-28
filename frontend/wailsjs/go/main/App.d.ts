@@ -34,6 +34,8 @@ export function OpenFolder(arg1:string):Promise<void>;
 
 export function PickFolder(arg1:string):Promise<string>;
 
+export function Prefetch(arg1:string):Promise<void>;
+
 export function Probe(arg1:string):Promise<ytdlp.MediaInfo>;
 
 export function Resolve(arg1:string,arg2:main.ResolvePrefs):Promise<player.StreamInfo>;

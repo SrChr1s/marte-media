@@ -12,7 +12,7 @@
   import { copyLink, openMenu } from '../lib/contextmenu.svelte'
   import { downloadTrack } from '../lib/downloads'
   import { duration, views } from '../lib/format'
-  import { current, enqueue, isCurrent, playNext, playTracks, player, trackFromEntry } from '../lib/player.svelte'
+  import { current, enqueue, isCurrent, playNext, playTracks, player, trackFromEntry, warm } from '../lib/player.svelte'
   import { cancelSearch, runSearch, search } from '../lib/search.svelte'
   import type { Entry } from '../lib/types'
 
@@ -129,7 +129,7 @@
         <ul class="list">
           {#each search.results as e, i (e.id)}
             <li in:fly={{ y: 8, opacity: 0.4, duration: i < 10 ? 200 : 0, delay: Math.min(i, 8) * 18, easing: cubicOut }} oncontextmenu={(ev) => menu(ev, e, i)}>
-              <button class="song" class:now={isCurrent(e.id)} onclick={() => play(i)}>
+              <button class="song" class:now={isCurrent(e.id)} use:warm={e.id} onclick={() => play(i)}>
                 <span class="cover">
                   <Cover src={e.thumbnail} icon="music" size={22} />
                   <span class="hov"><Icon name="play" size={22} /></span>
@@ -148,7 +148,7 @@
         <div class="grid" role="list">
           {#each search.results as e, i (e.id)}
             <div class="vcard" role="listitem" in:fly={{ y: 8, opacity: 0.4, duration: i < 12 ? 200 : 0, delay: Math.min(i, 10) * 20, easing: cubicOut }} oncontextmenu={(ev) => menu(ev, e, i)}>
-              <button class="open" class:now={isCurrent(e.id)} onclick={() => play(i)} title={e.title}>
+              <button class="open" class:now={isCurrent(e.id)} use:warm={e.id} onclick={() => play(i)} title={e.title}>
                 <span class="thumb">
                   <Cover src={e.thumbnail} />
                   {#if e.duration}<span class="vdur num">{duration(e.duration)}</span>{/if}

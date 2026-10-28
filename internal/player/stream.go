@@ -41,6 +41,11 @@ type Resolver struct {
 	Fetch func(ctx context.Context, id string) (ytdlp.Media, error) // normally ytdlp.Resolve
 }
 
+// Warm resolves a video into the cache without registering any stream.
+func (r *Resolver) Warm(ctx context.Context, id string) {
+	r.Cache.Get(ctx, id, func(ctx context.Context) (ytdlp.Media, error) { return r.Fetch(ctx, id) })
+}
+
 var ErrNothingPlayable = errors.New("este video no tiene un formato que la app pueda reproducir")
 
 func (r *Resolver) Resolve(ctx context.Context, id string, p ytdlp.Prefs) (StreamInfo, error) {

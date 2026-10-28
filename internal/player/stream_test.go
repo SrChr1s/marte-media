@@ -184,3 +184,18 @@ func TestExpiredURLIsRenewedThroughResolver(t *testing.T) {
 		t.Errorf("one resolve plus one refresh expected, got %d", fetches.Load())
 	}
 }
+
+func TestWarmFillsTheCacheForResolve(t *testing.T) {
+	calls := 0
+	r := &Resolver{Srv: newServer(t), Cache: NewMediaCache(), Fetch: func(ctx context.Context, id string) (ytdlp.Media, error) {
+		calls++
+		return ytdlp.Media{ID: id, Title: "t", Formats: []ytdlp.Format{{ID: "251", Ext: "webm", ACodec: "opus", Protocol: "https", URL: "http://x/a", ABR: 128, Channels: 2}}}, nil
+	}}
+	r.Warm(context.Background(), "abc")
+	if _, err := r.Resolve(context.Background(), "abc", ytdlp.Prefs{AudioCodecs: []string{"opus"}}); err != nil {
+		t.Fatal(err)
+	}
+	if calls != 1 {
+		t.Fatalf("yt-dlp ran %d times, want 1", calls)
+	}
+}

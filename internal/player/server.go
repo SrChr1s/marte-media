@@ -163,12 +163,25 @@ func (s *Server) serve(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := s.fetch(r, e)
+	// WebKit starts a stream with a plain GET and no Range. Asked for the whole file in one go, YouTube
+	// throttles to ~25 KB/s, so the first piece is requested alone and the rest is stitched on below.
+	whole := r.Method == http.MethodGet && r.Header.Get("Range") == ""
+	rng := clampRange(r.Header.Get("Range"), e.src.Chunk)
+	if whole {
+		rng = fmt.Sprintf("bytes=0-%d", e.src.Chunk-1)
+	}
+	resp, err := s.fetch(r, e, rng)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadGateway)
 		return
 	}
 	defer resp.Body.Close()
+	total := int64(-1)
+	if whole && resp.StatusCode == http.StatusPartialContent {
+		if m := contentRange.FindStringSubmatch(resp.Header.Get("Content-Range")); m != nil {
+			total, _ = strconv.ParseInt(m[3], 10, 64)
+		}
+	}
 
 	h := w.Header()
 	for _, k := range []string{"Content-Type", "Content-Length", "Content-Range", "Last-Modified", "Etag"} {
@@ -178,17 +191,42 @@ func (s *Server) serve(w http.ResponseWriter, r *http.Request) {
 	}
 	h.Set("Accept-Ranges", "bytes")
 	h.Set("Cache-Control", "no-store")
-	w.WriteHeader(resp.StatusCode)
+	status := resp.StatusCode
+	if total >= 0 { // answer the plain request with a plain 200 for the whole file
+		status = http.StatusOK
+		h.Del("Content-Range")
+		h.Set("Content-Length", strconv.FormatInt(total, 10))
+	}
+	w.WriteHeader(status)
 	// Send the headers now: the player needs the type and length before the first byte of data arrives.
 	if f, ok := w.(http.Flusher); ok {
 		f.Flush()
 	}
 	if r.Method != http.MethodHead {
-		io.Copy(w, resp.Body) // ends when either side closes: the request context cancels the upstream read
+		_, err := io.Copy(w, resp.Body) // ends when either side closes: the request context cancels the upstream read
+		for pos := int64(0); total >= 0 && err == nil; {
+			m := contentRange.FindStringSubmatch(resp.Header.Get("Content-Range"))
+			if m == nil {
+				return
+			}
+			end, _ := strconv.ParseInt(m[2], 10, 64)
+			pos = end + 1
+			if pos >= total {
+				break
+			}
+			resp.Body.Close()
+			resp, err = s.fetch(r, e, fmt.Sprintf("bytes=%d-%d", pos, pos+e.src.Chunk-1))
+			if err != nil || resp.StatusCode != http.StatusPartialContent {
+				return // the body ends short; the client sees a broken stream and asks again
+			}
+			defer resp.Body.Close()
+			_, err = io.Copy(w, resp.Body)
+		}
 	}
 }
 
 var byteRange = regexp.MustCompile(`^bytes=(\d+)-(\d*)$`)
+var contentRange = regexp.MustCompile(`^bytes (\d+)-(\d+)/(\d+)$`)
 
 // clampRange limits "bytes=N-" and over-long ranges to one chunk. The answer is then a 206 whose
 // Content-Range says what was really sent, which is all a media element needs to ask for the next piece.
@@ -207,9 +245,9 @@ func clampRange(h string, chunk int64) string {
 	return fmt.Sprintf("bytes=%d-%d", start, start+chunk-1)
 }
 
-// fetch asks the upstream for the stream (the same byte range the page asked for). If the signed URL was
+// fetch asks the upstream for the stream, for the byte range rng (empty: everything). If the signed URL was
 // rejected it is renewed once and the request repeated.
-func (s *Server) fetch(r *http.Request, e *entry) (*http.Response, error) {
+func (s *Server) fetch(r *http.Request, e *entry, rng string) (*http.Response, error) {
 	for attempt := 0; ; attempt++ {
 		u, headers, ready := e.current()
 		if err := waitUntil(r.Context(), ready); err != nil {
@@ -227,8 +265,8 @@ func (s *Server) fetch(r *http.Request, e *entry) (*http.Response, error) {
 			}
 		}
 		req.Header.Set("Accept-Encoding", "identity")
-		if rg := r.Header.Get("Range"); rg != "" {
-			req.Header.Set("Range", clampRange(rg, e.src.Chunk))
+		if rng != "" {
+			req.Header.Set("Range", rng)
 		}
 		resp, err := s.client.Do(req)
 		if err != nil {

@@ -58,6 +58,10 @@ export function PickFolder(arg1) {
   return window['go']['main']['App']['PickFolder'](arg1);
 }
 
+export function Prefetch(arg1) {
+  return window['go']['main']['App']['Prefetch'](arg1);
+}
+
 export function Probe(arg1) {
   return window['go']['main']['App']['Probe'](arg1);
 }
